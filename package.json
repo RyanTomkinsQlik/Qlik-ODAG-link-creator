@@ -1,0 +1,16 @@
+{
+  "name": "qlik-odag-service",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "odag-link-creator.js",
+  "scripts": {
+    "start": "node odag-link-creator.js",
+    "dev": "node --watch odag-link-creator.js"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "express": "^5.1.0",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.3"
+  }
+}
