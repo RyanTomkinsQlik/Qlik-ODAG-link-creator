@@ -649,6 +649,9 @@ app.post('/api/odag/create', async (req, res) => {
   }
 });
 
+// Check if running as service
+const isService = process.env.NODE_ENV === 'production' || process.argv.includes('--service');
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`ODAG Link Creator Service running on port ${PORT}`);
@@ -658,11 +661,39 @@ app.listen(PORT, () => {
   console.log(`API Endpoint: http://localhost:${PORT}/api/odag/create`);
   console.log(`Platform: ${process.platform}`);
   
-  setTimeout(() => {
-    const url = `http://localhost:${PORT}`;
-    console.log(`Opening browser automatically...`);
-    openBrowser(url);
-  }, 2000);
+  if (isService) {
+    console.log('Running as Windows service - browser auto-open disabled');
+    console.log('Access the web interface manually at http://localhost:3000');
+  } else {
+    // Only auto-open browser when running interactively
+    setTimeout(() => {
+      const url = `http://localhost:${PORT}`;
+      console.log(`Opening browser automatically...`);
+      openBrowser(url);
+    }, 2000);
+  }
+});
+
+// Add graceful shutdown handling for service
+process.on('SIGINT', () => {
+  console.log('Received SIGINT. Graceful shutdown...');
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM. Graceful shutdown...');
+  process.exit(0);
+});
+
+// Add error handling for uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
 
 export { ODAGLinkCreator, odagService };
